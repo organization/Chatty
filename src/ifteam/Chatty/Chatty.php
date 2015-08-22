@@ -28,10 +28,10 @@ class Chatty extends PluginBase implements Listener {
 	/** @var array */
 	public $db = [ ], $packets = [ ], $lastNametags = [ ], $messageStack = [ ];
 
-    /** @var NetworkInterlocker */
-    public $interlocker;
+	/** @var NetworkInterlocker */
+	public $interlocker;
 
-    /** @var DummyInterface */
+	/** @var DummyInterface */
 	public $dummyInterface;
 	
 	/**
@@ -96,9 +96,9 @@ class Chatty extends PluginBase implements Listener {
 	/**
 	 *
 	 * @param string $name
-	 * @param string $permission        	
-	 * @param string $description        	
-	 * @param string $usage        	
+	 * @param string $permission			
+	 * @param string $description			
+	 * @param string $usage			
 	 */
 	public function registerCommand($name, $permission, $description = "", $usage = "") {
 		$commandMap = $this->getServer ()->getCommandMap ();
@@ -118,8 +118,8 @@ class Chatty extends PluginBase implements Listener {
 	
 	/**
 	 *
-	 * @param string $key        	
-	 * @param array $format        	
+	 * @param string $key			
+	 * @param array $format			
 	 * @return null|string
 	 */
 	public function getMessage($key, $format = []) {
@@ -191,30 +191,30 @@ class Chatty extends PluginBase implements Listener {
 
 	/**
 	 *
-	 * @param string $message        	
-	 * @param Player $sender        	
+	 * @param string $message			
+	 * @param Player $sender			
 	 */
 	public function broadcastMessage($message, $sender = null) {
-        //콘솔에 메세지 출력
+		//콘솔에 메세지 출력
 		$this->getLogger ()->info ( $message );
 
 		foreach($this->getServer()->getOnlinePlayers() as $player){
-            //접속한 플레이어들에게 전달
+			//접속한 플레이어들에게 전달
 
 			if($this->getConfig()->get("local-chat-only", false) or (isset($this->db[$player->getName()]["local-chat"]) and $this->db[$player->getName()]["local-chat"] == true)){
-                //강제 근거리 채팅 모드이거나 해당 플레이어가 근거리 채팅 모드를 켠 경우의 메세지 필터링
+				//강제 근거리 채팅 모드이거나 해당 플레이어가 근거리 채팅 모드를 켠 경우의 메세지 필터링
 
-                if($sender === null){
-                    continue; //외부 서버에서 온 메세지, 당연히 근거리 채팅 모드에서는 배제됨
-                }
+				if($sender === null){
+					continue; //외부 서버에서 온 메세지, 당연히 근거리 채팅 모드에서는 배제됨
+				}
 
 				if(($sender->distance($player) > intval($this->getConfig()->get("local-chat-distance", 50))) and (strpos($message, $player->getName()) === false)){
-                    continue; //거리도 멀고, 해당 플레이어를 호출한 메세지도 아니기에 제외
+					continue; //거리도 멀고, 해당 플레이어를 호출한 메세지도 아니기에 제외
 				}
 			}
 
 			$player->sendMessage($message);
-            //받아라 얍
+			//받아라 얍
 		}
 	}
 
