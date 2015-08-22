@@ -194,27 +194,28 @@ class Chatty extends PluginBase implements Listener {
 	 * @param string $message			
 	 * @param Player $sender			
 	 */
-	public function broadcastMessage($message, $sender = null) {
+	public function broadcastMessage($message, $sender = null){
 		//콘솔에 메세지 출력
-		$this->getLogger ()->info ( $message );
+		$this->getLogger()->info ($message);
 
+		//접속한 플레이어들에게 전달
 		foreach($this->getServer()->getOnlinePlayers() as $player){
-			//접속한 플레이어들에게 전달
 
+			//강제 근거리 채팅 모드이거나 해당 플레이어가 근거리 채팅 모드를 켠 경우
 			if($this->getConfig()->get("local-chat-only", false) or (isset($this->db[$player->getName()]["local-chat"]) and $this->db[$player->getName()]["local-chat"] == true)){
-				//강제 근거리 채팅 모드이거나 해당 플레이어가 근거리 채팅 모드를 켠 경우의 메세지 필터링
 
-				if($sender === null){
-					continue; //외부 서버에서 온 메세지, 당연히 근거리 채팅 모드에서는 배제됨
-				}
+				//해당 플레이어를 호명한 경우는 멀거나 다른 서버에서 말했어도 반드시 전달됨
+				if(strpos($message, "@" . $player->getName()) === false){
 
-				if(($sender->distance($player) > intval($this->getConfig()->get("local-chat-distance", 50))) and (strpos($message, $player->getName()) === false)){
-					continue; //거리도 멀고, 해당 플레이어를 호출한 메세지도 아니기에 제외
+					//멀거나 다른 서버에서 말한 경우
+					if($sender === null or ($sender->distance($player) > intval($this->getConfig()->get("local-chat-distance", 50)))){
+						continue;
+					}
 				}
 			}
 
-			$player->sendMessage($message);
 			//받아라 얍
+			$player->sendMessage($message);
 		}
 	}
 
