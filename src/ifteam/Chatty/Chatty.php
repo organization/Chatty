@@ -41,7 +41,6 @@ class Chatty extends PluginBase implements Listener {
 	public $messages = null;
 	const MESSAGE_VERSION = 1;
 
-
 	const MESSAGE_LENGTH = 50;
 	const MESSAGE_MAX_LINES = 5;
 
@@ -187,6 +186,9 @@ class Chatty extends PluginBase implements Listener {
 		// $event
 		// $message
 		$this->getServer ()->getScheduler ()->scheduleDelayedTask ( new CommandPreprocessEventTask ( $this, $event, $message ), 1 );
+
+		//$this->broadcastMessage($message, $sender);
+		//FIXME: 여기에 위 주석의 코드가 있어야 하는 거 아닌가요?
 	}
 
 	/**
