@@ -94,6 +94,9 @@ class NetworkInterlocker implements Listener {
 				$this->plugin->getServer ()->getPluginManager ()->callEvent ( $event );
 				if ($event->isCancelled ()) {
 					return;
+
+					//FIXME: 위의 onChat 에서 더미플레이어는 무조건 캔슬시키고, $sender를 null로 이 메서드를 다시 호출해서
+					//FIXME: 이벤트 피싱 없이 브로드캐스트하게 돼 있는데, 왜 이런 식으로 하는 건가요?
 				}
 			}
 		}

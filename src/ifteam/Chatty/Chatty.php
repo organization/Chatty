@@ -163,24 +163,44 @@ class Chatty extends PluginBase implements Listener {
 		}
 	}
 	public function prePlayerCommand(PlayerCommandPreprocessEvent $event) {
-		if (strpos ( $event->getMessage (), "/" ) === 0) {
+		$message = $event->getMessage();
+
+		//채팅이 아닌 명령어
+		if(strpos($message, "/") === 0){
 			return;
 		}
-		if ($event->getPlayer () instanceof DummyPlayer) {
+
+		if($event->getPlayer() instanceof DummyPlayer){
 			return;
 		}
 		
-		$event->setCancelled ( true );
-		$sender = $event->getPlayer ();
+		$event->setCancelled(true);
+		$sender = $event->getPlayer();
+
+		//만약 확성기를 사용할 수 있고, 메세지에 @all을 넣어서 확성기를 사용했으며
+		if(($this->getConfig()->get("loudspeaker-enabled", false) and (strpos($message, "@all") === 0)) and
+
+		//확성기가 유료 서비스인데
+		(($cost = intval($this->getConfig()->get("loudspeaker-cost", 10))) > 0) and
+
+		//아예 이코노미API가 없어서 지불 불가이거나
+		((($api = $this->getServer()->getPluginManager()->getPlugin("EconomyAPI")) === null) or
+
+		//결재가 실패해서 (아마 돈이 모자라서) 지불 불가라면
+		(\onebone\economyapi\EconomyAPI::getInstance()->reduceMoney($sender, $cost) !== \onebone\economyapi\EconomyAPI::RET_SUCCESS))){
+
+		//메세지에서 @all을 도로 제거해서 확성기 사용을 막음
+		$message = substr($message, 4); }
+
 		
-		$this->getServer ()->getPluginManager ()->callEvent ( $myEvent = new PlayerChatEvent ( $sender, $event->getMessage () ) );
+		$this->getServer ()->getPluginManager ()->callEvent ( $myEvent = new PlayerChatEvent($sender, $message) );
 		if ($myEvent->isCancelled ()) {
 			return;
 		}
 		
 		$message = $this->getServer ()->getLanguage ()->translateString ( $myEvent->getFormat (), [ 
 				$myEvent->getPlayer ()->getDisplayName (),
-				$myEvent->getMessage () 
+				$message
 		] );
 		
 		// $event
@@ -206,8 +226,8 @@ class Chatty extends PluginBase implements Listener {
 			//강제 근거리 채팅 모드이거나 해당 플레이어가 근거리 채팅 모드를 켠 경우
 			if($this->getConfig()->get("local-chat-only", false) or (isset($this->db[$player->getName()]["local-chat"]) and $this->db[$player->getName()]["local-chat"] == true)){
 
-				//해당 플레이어를 호명한 경우는 멀거나 다른 서버에서 말했어도 반드시 전달됨
-				if(strpos($message, "@" . $player->getName()) === false){
+				//@all을 넣어서 확성기를 쓴 경우나 해당 플레이어를 호명한 경우는 멀거나 다른 서버에서 말했어도 반드시 전달됨
+				if(strpos($message, "@" . $player->getName()) === false and strpos($message, "@all") !== 0){
 
 					//멀거나 다른 서버에서 말한 경우
 					if($sender === null or ($sender->distance($player) > intval($this->getConfig()->get("local-chat-distance", 50)))){
